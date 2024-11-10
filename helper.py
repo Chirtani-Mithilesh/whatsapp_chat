@@ -82,19 +82,28 @@ def evaluate_model(model, X_test, y_test):
 
 # Function to predict mental health state and explain with SHAP
 def predict_and_explain(recent_df, model):
-    features = recent_df[['message_length', 'sentiment','adjusted_sentiment','negativity_ratio', 'self_referencing', 
-                          'emoji_count', 'happy_emoji_count', 'sad_emoji_count']]
+    # Select the features for prediction
+    features = recent_df[['message_length', 'sentiment', 'adjusted_sentiment', 'negativity_ratio', 
+                          'self_referencing', 'emoji_count', 'happy_emoji_count', 'sad_emoji_count']]
+    
+    # Make predictions
     predictions = model.predict(features)
     
+    # Initialize SHAP explainer and calculate SHAP values
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(features)
     
     return predictions, shap_values
 
+
 # Function to plot SHAP explanation
 def plot_shap_explanation(shap_values):
-    shap.summary_plot(shap_values[1], feature_names=['message_length', 'sentiment', 'negativity_ratio', 
-                                                     'self_referencing', 'emoji_count', 'happy_emoji_count', 'sad_emoji_count'])
+    fig = plt.figure()
+    max_features = shap_values[1].shape[1]  # Get the number of features from shap_values
+    shap.summary_plot(shap_values[1], plot_type="bar", show=False, max_display=max_features)
+    plt.tight_layout()
+    return fig
+
 
 # Function to generate user feedback based on predictions
 def generate_user_feedback(recent_df, predictions):
