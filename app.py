@@ -4,15 +4,17 @@ import helper
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
-matplotlib.use('TkAgg')
-st.sidebar.title("WhatsApp Chat Mental Health Analyzer")
+import shap
 from matplotlib import font_manager
-# Path to the Segoe UI Emoji font on Windows
+
+# Set up font for displaying emojis
+matplotlib.use('Agg')
 font_path = "C:\\Windows\\Fonts\\seguiemj.ttf"  # Ensure the path is correct for your system
 prop = font_manager.FontProperties(fname=font_path)
-# Set the font globally in matplotlib
 plt.rcParams["font.family"] = prop.get_name()
 
+# Streamlit sidebar setup
+st.sidebar.title("WhatsApp Chat Mental Health Analyzer")
 uploaded_file = st.sidebar.file_uploader("Choose a WhatsApp chat file")
 if uploaded_file is not None:
     # Preprocess the chat data
@@ -31,7 +33,7 @@ if uploaded_file is not None:
     st.write("Model Accuracy:", eval_metrics["Accuracy"])
     st.write("Classification Report:", eval_metrics["Classification Report"])
 
-    # Fetch unique users
+    # Fetch unique users for analysis
     user_list = df['user'].unique().tolist()
     if 'group_notification' in user_list:
         user_list.remove('group_notification')
@@ -131,7 +133,7 @@ if uploaded_file is not None:
             ax.pie(emoji_df[1].head(), labels=emoji_df[0].head(), autopct="%0.2f")
             st.pyplot(fig)
 
-        # Predict Mental Health State for Recent Messages
+        # Predict Mental Health State for Recent Messages        
         if selected_user != "Overall":
             # Fetch recent messages for the selected user
             recent_df = df[df['user'] == selected_user].tail(message_count)
@@ -141,11 +143,12 @@ if uploaded_file is not None:
             st.write(predictions)
 
             # SHAP Explainability Visualization
-            st.title("Explainability")
-            helper.plot_shap_explanation(shap_values)
-
+            st.title("Explainability: SHAP Values")
+            shap.initjs()
+            st.write("SHAP values for the predictions:")
+            st.pyplot(helper.plot_shap_explanation(shap_values))
             # Generate and Display User Feedback Based on Predictions
-            st.title("User Feedback")
+            st.title("User  Feedback")
             feedback_messages = helper.generate_user_feedback(recent_df, predictions)
             for feedback in feedback_messages:
                 st.write(feedback)
