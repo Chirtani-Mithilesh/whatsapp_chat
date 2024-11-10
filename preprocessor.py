@@ -93,8 +93,6 @@ def preprocess(data):
     df['sad_emoji_count'] = df['message'].apply(lambda x: sum(1 for char in x if char in '😢😭😿😞😔😟😕😫😩🥺😣😖😥😓😰😨🙁☹️🥲') if x else 0)
     df['angry_emoji_count'] = df['message'].apply(lambda x: sum(1 for char in x if char in '😡😠🤬😤') if x else 0)
     df['surprise_emoji_count'] = df['message'].apply(lambda x: sum(1 for char in x if char in '😱😨😳🥵') if x else 0)
-
     # Define time periods
     df['period'] = df['hour'].apply(lambda hour: f"{hour}-00" if hour == 23 else (f"00-1" if hour == 0 else f"{hour}-{hour+1}"))
-    
     return df
